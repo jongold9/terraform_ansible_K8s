@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-express
+  labels:
+    app: mongo-express
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo-express
+  template:
+    metadata:
+      labels:
+        app: mongo-express
+    spec:
+      containers:
+      - name: mongo-express
+        image: mongo-express
+        ports:
+# Порт по умолчанию который слушает экспресс внутри контейнера
+        - containerPort: 8081
+        env:
+# Переменная с пользователем монги при помощи которой эксперсс коннектиться к ней (взята из документации к контейнеру)
+        - name: ME_CONFIG_MONGODB_ADMINUSERNAME
+          valueFrom:
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-root-username
+# Переменная с паролем пользователя монги при помощи которой эксперсс коннектиться к ней (взята из документации к контейнеру)
+        - name: ME_CONFIG_MONGODB_ADMINPASSWORD
+          valueFrom: 
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-root-password
+ # Переменная в которой указываем путь где находиться сама монга, указываем его через конфигмап (взята из документации к контейнеру)
+ # !!! Конфигмап нужно создать и применить в кластере перед запуском этого деплоймента 
+ # !!! Поэтому сначала идем и создаем его (код ниже)
+        - name: ME_CONFIG_MONGODB_SERVER
+          valueFrom: 
+            configMapKeyRef:
+              name: mongodb-configmap
+              key: database_url
+---
+# Сразу опишем сервис типа NodePort для обеспечения доступа к нашему фронту из вне
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-express-service
+spec:
+  type: NodePort
+# Указываем на какие поды нужно рапределять трафик
+  selector:
+    app: mongo-express  
+  ports:
+    - protocol: TCP
+# Порт на который сервис будет перенаправлять трафик с порта указанного в директиве nodePort (ниже в коде)
+      port: 8081
+# Порт внутри контейнера
+      targetPort: 8081
+# Опционален, если его не указать – Kubernetes выделит порт из диапазона 30000-32767
+      nodePort: 30001

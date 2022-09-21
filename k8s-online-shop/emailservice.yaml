@@ -1,0 +1,85 @@
+# Copyright 2018 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emailservice
+spec:
+  selector:
+    matchLabels:
+      app: emailservice
+  template:
+    metadata:
+      labels:
+        app: emailservice
+    spec:
+      containers:
+      - name: server
+ # Контейнер указываем через полный пусть т.к. он лежит не в dockerhub, а гугловском хранилище контейнеров
+        image: gcr.io/google-samples/microservices-demo/emailservice:v0.2.3 
+        # gcr.io/google-samples/microservices-demo/emailservice:v0.3.8
+        ports:
+# Порт, на который принимает соединение приложение внутри контейнера - эта инфа предоставляется разработчиком приложения
+        - containerPort: 8080
+        env:
+# Описываем переменные которые считывает приложение внутри контейнера - эти значения тоже должны предоставить разработчики приложения
+        - name: PORT
+          value: "8080"
+        # - name: DISABLE_TRACING
+        #   value: "1"
+        - name: DISABLE_PROFILER
+          value: "1"
+# Проверка на готовоность - написанная разработчиками для определения работоспособности приложения - запускается только при старте пода
+# Эта проверка позволяет убедиться, что приложение произвело все необходимые для запуска действия и готово принимать трафик или выполнять другую работу 
+# После того, как readinessProbe начинают выполняться успешно, приложение считается готовым и на него начинает поступать трафик
+        readinessProbe:
+          periodSeconds: 5
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:8080"]
+# Такая же проверка, но уже на работосопособность приложения - работает постоянно
+# Kubelet использует liveness пробу для проверки, когда перезапустить под
+        livenessProbe:
+          periodSeconds: 5
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:8080"]
+# Requests - это количество ресурсов, которые резервируются для подов на ноде, они не имеют отношения к реальному потреблению ресурсов подами
+# Это один из параментов который влияет на решение шкедулера о том на какой ноде запускать под
+        resources:
+          requests:
+ # mili cpu - одна тысячная доного CPU - 100m - 1/10 часть одного ядра в системе
+ # Калькулятор - https://learnk8s.io/kubernetes-instance-calculator
+            cpu: 100m
+            memory: 64Mi
+# Указываем лимиты - то количество ресурсов, которые под пожет использовать, его верхняя граница по аппаратным ресурсам
+          limits:
+            cpu: 200m
+            memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: emailservice
+spec:
+  type: ClusterIP
+  selector:
+    app: emailservice
+  ports:
+  - protocol: TCP
+# Порт на который сервис будет принимать соединение и форвардить его на порт 8080 
+# Чаще всего для наглядности значения port и targetPort делают одинаковыми
+# Здесь, для примера, наглядно показано что эти значения могу отличаться друг от друга
+    port: 5000
+# Порт, на который принимает соединение приложение внутри контейнера - эта инфа предоставляется разработчиком приложения
+    targetPort: 8080

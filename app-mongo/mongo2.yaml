@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-deployment
+  labels:
+    app: mongodb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb
+  template:
+    metadata:
+      labels:
+        app: mongodb
+    spec:
+      containers:
+      - name: mongodb
+        image: mongo
+        ports:
+# Порт по умолчанию который слушает монга внутри контейнера
+        - containerPort: 27017
+        env:
+# Стандартная переменная заданная разработчиками контейнера с монгой (описана в документации контейнера)
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+# !!! Если сейчас запустим этот дейплоймент он выдаст ошибку т.к. сначала нужно создать секрет с данными для монги описанный ниже
+# !!! Поэтому сначала идем и создаем секрет (его код ниже) и применяем его до этого деплоймента
+# !!! т.е. информация для монги будет жить только внутри куба и нигде в коде не светиться, секурность все дела..
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-root-username
+# Стандартная переменная заданная разработчиками контейнера с монгой (описана в документации контейнера)
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom: 
+            secretKeyRef:
+              name: mongodb-secret
+              key: mongo-root-password
+# Атачим к контейнеру постоянный том в котором монга будет хранить свои данные
+# !!! Перед этим нужно создать PV и PVC
+        volumeMounts:
+        - name: "mongo-data-dir"
+          mountPath: "/data/db"
+      volumes:
+      - name: "mongo-data-dir"
+        persistentVolumeClaim:
+          claimName: "mongo-data"
+---
+# В этом же файле описываем сервис типа ClusterIP чтобы в дальнейшем подружить этот под с фронтом (mongo-express)
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-service
+spec:
+  selector:
+    app: mongodb
+  ports:
+    - protocol: TCP
+# Порт на который принимает соединение сам сервис
+      port: 27017
+# Порт который слушает монга внутри контейнера
+      targetPort: 27017
+

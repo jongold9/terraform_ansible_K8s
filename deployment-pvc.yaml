@@ -1,0 +1,33 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      containers:
+      - image: nginx
+        name: web-app
+        ports:
+        - containerPort: 80
+        volumeMounts:
+          - mountPath: /mnt
+            name: claim-volume
+      volumes:
+        - name: claim-volume
+          persistentVolumeClaim:
+            claimName: claim-local-pvc
+

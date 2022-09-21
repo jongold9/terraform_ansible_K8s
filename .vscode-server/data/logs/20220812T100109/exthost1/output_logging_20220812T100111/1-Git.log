@@ -1,0 +1,6 @@
+[2022-08-12T10:01:12.490Z] Log level: Info
+[2022-08-12T10:01:12.493Z] [info] Validating found git in: git
+[2022-08-12T10:01:12.558Z] [info] Using git 2.25.1 from git
+[2022-08-12T10:01:48.371Z] > git clone https://gitlab.com/dboevets/actpro-devops-04.22/-/tree/main/k8s-online-shop /home/ubuntu/k8s-online-shop --progress [435ms]
+[2022-08-12T10:01:48.371Z] Cloning into '/home/ubuntu/k8s-online-shop'...
+fatal: unable to access 'https://gitlab.com/dboevets/actpro-devops-04.22/-/tree/main/k8s-online-shop/': The requested URL returned error: 503

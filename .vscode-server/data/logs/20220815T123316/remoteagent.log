@@ -1,0 +1,17 @@
+[2022-08-15 12:33:16.231] [remoteagent] [info] Extension host agent started.
+[2022-08-15 12:33:16.865] [remoteagent] [info] [127.0.0.1][3b41d56e][ManagementConnection] New connection established.
+[2022-08-15 12:33:16.892] [remoteagent] [info] [127.0.0.1][740943e4][ExtensionHostConnection] New connection established.
+[2022-08-15 12:33:16.898] [remoteagent] [info] [127.0.0.1][740943e4][ExtensionHostConnection] <8732> Launched Extension Host Process.
+[2022-08-15 12:33:21.066] [remoteagent] [info] [127.0.0.1][740943e4][ExtensionHostConnection] <8732> Extension Host Process exited with code: 0, signal: null.
+[2022-08-15 12:33:21.066] [remoteagent] [info] Last EH closed, waiting before shutting down
+[2022-08-15 12:33:21.856] [remoteagent] [info] [127.0.0.1][60ef0dbe][ManagementConnection] New connection established.
+[2022-08-15 12:33:21.960] [remoteagent] [info] [127.0.0.1][9b49ce9a][ExtensionHostConnection] New connection established.
+[2022-08-15 12:33:21.976] [remoteagent] [info] [127.0.0.1][9b49ce9a][ExtensionHostConnection] <8807> Launched Extension Host Process.
+[2022-08-15 12:33:22.710] [remoteagent] [info] [127.0.0.1][3b41d56e][ManagementConnection] The client has disconnected, will wait for reconnection 3h before disposing...
+[2022-08-15 12:33:22.743] [remoteagent] [error] Error: Unexpected SIGPIPE
+    at process.<anonymous> (/home/ubuntu/.vscode-server/bin/92d25e35d9bf1a6b16f7d0758f25d48ace11e5b9/out/vs/server/node/server.main.js:145:7933)
+    at process.emit (node:events:390:28)
+[2022-08-15 12:36:03.198] [remoteagent] [error] [File Watcher (parcel)] Unexpected error: std::bad_alloc (EUNKNOWN) (path: /home/ubuntu)
+[2022-08-15 12:36:03.198] [remoteagent] [error] [File Watcher (universal)] restarting watcher after error: std::bad_alloc
+[2022-08-15 12:36:04.090] [remoteagent] [warning] [File Watcher (node.js)] Watcher shutdown because watched path got deleted
+[2022-08-15 12:38:21.068] [remoteagent] [info] New EH opened, aborting shutdown
